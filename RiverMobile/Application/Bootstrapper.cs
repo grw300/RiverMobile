@@ -7,22 +7,15 @@ using Autofac;
 using MobileCore.Factories;
 using RiverMobile.ViewModels;
 using RiverMobile.Views;
+using RiverMobile.Services;
+using RiverMobile.Models;
+using RiverMobile.Helpers;
 
 namespace RiverMobile
 {
     public class Bootstrapper : AutofacBootstrapper
     {
         readonly Application application;
-        readonly Func<string, string, string> Icon = (platform, icon) =>
-        {
-            switch (platform)
-            {
-                case Device.iOS:
-                    return icon;
-                default:
-                    return null;
-            }
-        };
 
         public Bootstrapper(Application application)
         {
@@ -37,47 +30,103 @@ namespace RiverMobile
 
         protected override void ConfigureApplication(IContainer container)
         {
-            application.Properties["RiverServiceBaseAddress"] = "http://river-api.azurewebsites.net/api/v1/";
-
             var viewFactory = container.Resolve<IViewFactory>();
 
-            var chatPage = viewFactory.Resolve<ChatViewModel>();
-            var personnelPage = viewFactory.Resolve<PersonnelViewModel>();
-            var reportPage = viewFactory.Resolve<ReportViewModel>();
+            var loginService = container.Resolve<ILoginService>();
 
-            var tabbedPage = new TabbedPage
-            {
-                Children =
-                {
-                    new NavigationPage(personnelPage)
-                    {
-                        Title = "Personnel",
-                        Icon = Icon(Device.RuntimePlatform, "Personnel.png")
-                    },
-                    new NavigationPage(reportPage)
-                    {
-                        Title = "Report",
-                        Icon = Icon(Device.RuntimePlatform, "Report.png")
-                    },
-                    new NavigationPage(chatPage)
-                    {
-                        Title = "Chat",
-                        Icon = Icon(Device.RuntimePlatform, "Chat.png")
-                    }
-                }
-            };
+            application.Properties["RiverServiceBaseAddress"] = "http://river-api.azurewebsites.net/api/v1/";
 
-            application.MainPage = tabbedPage;
+            application.MainPage = Settings.IsLoggedIn ? loginService.MainPage
+                                                       : viewFactory.Resolve<LoginViewModel>();
         }
 
         protected override void RegisterViews(IViewFactory viewFactory)
         {
-            viewFactory.Register<ChatViewModel, ChatView>();
             viewFactory.Register<LoginViewModel, LoginView>();
+            viewFactory.Register<SettingsViewModel, SettingsView>();
+            viewFactory.Register<MainViewModel, MainView>();
+
+            viewFactory.Register<ChatViewModel, ChatView>();
             viewFactory.Register<PersonnelViewModel, PersonnelView>();
             viewFactory.Register<ReportViewModel, ReportView>();
-
-            viewFactory.Register<PersonnelSettingsViewModel, PersonnelSettingsView>();
         }
+
+        //MasterDetailPage CreateMasterDetailPage()
+        //{
+        //    var chatPage = viewFactory.Resolve<ChatViewModel>();
+        //    var personnelPage = viewFactory.Resolve<PersonnelViewModel>();
+        //    var reportPage = viewFactory.Resolve<ReportViewModel>();
+
+        //    var settingsPage = viewFactory.Resolve<SettingsViewModel>();
+
+        //    settingsPage.Icon = "Menu.png";
+
+        //    var masterDetailPage = new MasterDetailPage
+        //    {
+        //        Master = settingsPage,
+        //        Detail = new TabbedPage
+        //        {
+        //            Children =
+        //            {
+        //                new NavigationPage(personnelPage)
+        //                {
+        //                    Title = "Personnel",
+        //                    Icon = Icon(Device.RuntimePlatform, "Personnel.png")
+        //                },
+        //                new NavigationPage(reportPage)
+        //                {
+        //                    Title = "Report",
+        //                    Icon = Icon(Device.RuntimePlatform, "Report.png")
+        //                },
+        //                new NavigationPage(chatPage)
+        //                {
+        //                    Title = "Chat",
+        //                    Icon = Icon(Device.RuntimePlatform, "Chat.png")
+        //                }
+        //            }
+        //        }
+        //    };
+
+        //    return masterDetailPage;
+        //}
+
+        //MasterDetailPage CreateMasterDetailPage()
+        //{
+        //    var chatPage = viewFactory.Resolve<ChatViewModel>();
+        //    var personnelPage = viewFactory.Resolve<PersonnelViewModel>();
+        //    var reportPage = viewFactory.Resolve<ReportViewModel>();
+
+        //    var settingsPage = viewFactory.Resolve<SettingsViewModel>();
+
+        //    settingsPage.Icon = "Menu.png";
+
+        //    var masterDetailPage = new MasterDetailPage
+        //    {
+        //        Master = settingsPage,
+        //        Detail = new TabbedPage
+        //        {
+        //            Children =
+        //            {
+        //                new NavigationPage(personnelPage)
+        //                {
+        //                    Title = "Personnel",
+        //                    Icon = Icon(Device.RuntimePlatform, "Personnel.png")
+        //                },
+        //                new NavigationPage(reportPage)
+        //                {
+        //                    Title = "Report",
+        //                    Icon = Icon(Device.RuntimePlatform, "Report.png")
+        //                },
+        //                new NavigationPage(chatPage)
+        //                {
+        //                    Title = "Chat",
+        //                    Icon = Icon(Device.RuntimePlatform, "Chat.png")
+        //                }
+        //            }
+        //        }
+        //    };
+
+        //    return masterDetailPage;
+        //}
     }
 }

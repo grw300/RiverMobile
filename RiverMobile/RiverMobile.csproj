@@ -17,9 +17,12 @@
     <EmbeddedResource Include="Application\RiverApp.xaml" />
     <EmbeddedResource Include="Views\ChatView.xaml" />
     <EmbeddedResource Include="Views\LoginView.xaml" />
-    <EmbeddedResource Include="Views\PersonnelSettingsView.xaml" />
+    <EmbeddedResource Include="Views\SettingsView.xaml" />
     <EmbeddedResource Include="Views\PersonnelView.xaml" />
     <EmbeddedResource Include="Views\ReportView.xaml" />
+    <EmbeddedResource Include="Views\MainView.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -48,6 +51,9 @@
     <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\LoginView.xaml.cs">
       <DependentUpon>*.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\MainPage.xaml.cs">
+      <DependentUpon>MainView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="JsonApiSerializer" Version="0.9.16" />
@@ -55,5 +61,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Xamarin.Forms" Version="2.4.0.269-pre2" />
     <PackageReference Include="Xam.Plugins.Settings" Version="3.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Messages\" />
   </ItemGroup>
 </Project>

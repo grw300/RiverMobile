@@ -1,6 +1,7 @@
 ﻿using System;
 using Plugin.Settings;
 using Plugin.Settings.Abstractions;
+using RiverMobile.Models;
 
 namespace RiverMobile.Helpers
 {
@@ -13,11 +14,28 @@ namespace RiverMobile.Helpers
         /// </summary>
         static ISettings AppSettings => CrossSettings.Current;
 
-        public static string CurrentLocation
+        public static int CurrentLocation
         {
-            get => AppSettings.GetValueOrDefault(nameof(CurrentLocation), string.Empty);
-
+            get => AppSettings.GetValueOrDefault(nameof(CurrentLocation), -1);
             set => AppSettings.AddOrUpdateValue(nameof(CurrentLocation), value);
+        }
+
+        public static bool IsLoggedIn
+        {
+            get => AppSettings.GetValueOrDefault(nameof(IsLoggedIn), false);
+            set => AppSettings.AddOrUpdateValue(nameof(IsLoggedIn), value);
+        }
+
+        public static string UserId
+        {
+            get => AppSettings.GetValueOrDefault(nameof(UserId), string.Empty);
+            set => AppSettings.AddOrUpdateValue(nameof(UserId), value);
+        }
+
+        public static string UserName
+        {
+            get => AppSettings.GetValueOrDefault(nameof(UserName), string.Empty);
+            set => AppSettings.AddOrUpdateValue(nameof(UserName), value);
         }
     }
 }

@@ -16,32 +16,39 @@ namespace RiverMobile
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<RiverAPIService>()
-                .As<IRiverAPIService>()
-                .SingleInstance();
+                   .As<IRiverAPIService>()
+                   .SingleInstance();
+            builder.RegisterType<LoginService>()
+                   .As<ILoginService>()
+                   .SingleInstance();
 
             builder.RegisterType<ChatViewModel>()
-                .SingleInstance();
+                   .SingleInstance();
             builder.RegisterType<LoginViewModel>()
-                .SingleInstance();
+                   .SingleInstance();
             builder.RegisterType<PersonnelViewModel>()
-                .SingleInstance();
+                   .SingleInstance();
             builder.RegisterType<ReportViewModel>()
-                .SingleInstance();
+                   .SingleInstance();
 
-            builder.RegisterType<PersonnelSettingsViewModel>()
-                .SingleInstance();
+            builder.RegisterType<MainViewModel>()
+                   .SingleInstance();
+            builder.RegisterType<SettingsViewModel>()
+                   .SingleInstance();
 
             builder.RegisterType<ChatView>()
-                .SingleInstance();
+                   .SingleInstance();
             builder.RegisterType<LoginView>()
-                .SingleInstance();
+                   .SingleInstance();
             builder.RegisterType<PersonnelView>()
-                .SingleInstance();
+                   .SingleInstance();
             builder.RegisterType<ReportView>()
-                .SingleInstance();
+                   .SingleInstance();
 
-            builder.RegisterType<PersonnelSettingsView>()
-                .SingleInstance();
+            builder.RegisterType<MainView>()
+                   .SingleInstance();
+            builder.RegisterType<SettingsView>()
+                   .SingleInstance();
 
             //builder.RegisterInstance<Func<Page>>(() =>
             //    ((TabbedPage)Application.Current.MainPage).CurrentPage

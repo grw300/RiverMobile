@@ -8,8 +8,18 @@
 		<Label 
             Text="Login View" 
             FontSize="Medium" />
+        <Entry
+            Placeholder="User Name"
+            Text="{Binding UserName, Mode=TwoWay}" />
         <Button 
             Command="{Binding LoginCommand}"
             Text="Login" />
+
+        <ActivityIndicator
+            Color="Default"
+            IsRunning="{Binding IsBusy}"
+            IsVisible="{Binding IsBusy}"
+            HorizontalOptions="Center"
+            VerticalOptions="Center" />
 	</StackLayout>
 </ContentPage>
