@@ -1,45 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using CoreLocation;
 using Foundation;
-using JsonApiSerializer;
-using JsonApiSerializer.JsonApi;
-using Newtonsoft.Json;
 using RiverMobile.Helpers;
 using RiverMobile.Messages;
 using RiverMobile.Models;
+using RiverMobile.Services;
 using UIKit;
-using Xamarin.Forms;
 
 namespace RiverMobile.iOS.Services
 {
-    public class BeaconService
+    public class BeaconService : IBeaconService
     {
-        readonly CLLocationManager locationManager = new CLLocationManager();
-        IList<CLBeaconRegion> beaconRegions = new List<CLBeaconRegion>();
+        readonly IMessageService messageService;
 
-        public BeaconService()
+        readonly CLLocationManager locationManager = new CLLocationManager();
+        IList<CLBeaconRegion> clBeaconRegions = new List<CLBeaconRegion>();
+
+        public BeaconService(
+            IMessageService messageService)
         {
+            this.messageService = messageService;
+
             locationManager.PausesLocationUpdatesAutomatically = false;
 
             // iOS 8 has additional permissions requirements
             if (UIDevice.CurrentDevice.CheckSystemVersion(8, 0))
             {
                 locationManager.RequestAlwaysAuthorization(); // works in background
-                                                              //locMgr.RequestWhenInUseAuthorization (); // only in foreground
+                //locMgr.RequestWhenInUseAuthorization (); // only in foreground
             }
 
             // iOS 9 requires the following for background location updates
             // By default this is set to false and will not allow background updates
-            locationManager.AllowsBackgroundLocationUpdates |= UIDevice.CurrentDevice.CheckSystemVersion(9, 0);
+            if (UIDevice.CurrentDevice.CheckSystemVersion(9, 0))
+            {
+                locationManager.AllowsBackgroundLocationUpdates = true;
+            }
 
             locationManager.RegionEntered += (sender, e) =>
             {
-                MessagingCenter.Subscribe<BeaconService, string>(this, MessangerKeys.RecordStamp, (who, args) =>
+                messageService.Subscribe(this, (object messenger, RecordStampMessage message) =>
                 {
-                    PrintBeacon(args);
+                    PrintBeaconLocation(message.Stamp.Location);
                 });
 
                 locationManager.DidRangeBeacons += OnDidRangeBeacons;
@@ -51,36 +55,36 @@ namespace RiverMobile.iOS.Services
             };
         }
 
-        public void StartRanging(string uuid, string id)
+        public void StartRanging((string uuid, string id) beaconRegion)
         {
-            var beaconUUID = new NSUuid(uuid);
+            var beaconUUID = new NSUuid(beaconRegion.uuid);
 
-            var beaconRegion = new CLBeaconRegion(beaconUUID, id)
+            var clBeaconRegion = new CLBeaconRegion(beaconUUID, beaconRegion.id)
             {
                 NotifyEntryStateOnDisplay = true,
                 NotifyOnEntry = true,
                 NotifyOnExit = true
             };
 
-            beaconRegions.Add(beaconRegion);
+            clBeaconRegions.Add(clBeaconRegion);
 
-            locationManager.StartMonitoring(beaconRegion);
-            locationManager.StartRangingBeacons(beaconRegion);
+            locationManager.StartMonitoring(clBeaconRegion);
+            locationManager.StartRangingBeacons(clBeaconRegion);
         }
 
-        public void StopRanging(string uuid, string id)
+        public void StopRanging((string uuid, string id) beaconRegion)
         {
-            var beaconRegion = beaconRegions
+            var clBeaconRegion = clBeaconRegions
                 .FirstOrDefault(
                     region =>
-                        region.ProximityUuid.AsString() == uuid &&
-                        region.Identifier == id
+                        region.ProximityUuid.AsString() == beaconRegion.uuid &&
+                        region.Identifier == beaconRegion.id
                     );
 
-            locationManager.StopMonitoring(beaconRegion);
-            locationManager.StopRangingBeacons(beaconRegion);
+            locationManager.StopMonitoring(clBeaconRegion);
+            locationManager.StopRangingBeacons(clBeaconRegion);
 
-            beaconRegions.Remove(beaconRegion);
+            clBeaconRegions.Remove(clBeaconRegion);
         }
 
         void OnDidRangeBeacons(object sender, CLRegionBeaconsRangedEventArgs e)
@@ -95,18 +99,15 @@ namespace RiverMobile.iOS.Services
             {
                 Time = DateTime.UtcNow,
                 Location = location,
-                PersonalId = Guid.Parse(Settings.UserId)
+                PersonalId = Settings.UserId
             };
 
-            var stampString = JsonConvert.SerializeObject(stamp, new JsonApiSerializerSettings());
-
-            MessagingCenter.Send(this, MessangerKeys.RecordStamp, stampString);
+            messageService.Send(new RecordStampMessage(stamp));
         }
 
-        protected void PrintBeacon(string stampString)
+        protected void PrintBeaconLocation(int beaconLocation)
         {
-            var stamp = JsonConvert.DeserializeObject<Stamp>(stampString, new JsonApiSerializerSettings());
-            Console.WriteLine($"First Beacon: {stamp.Location}");
+            Console.WriteLine($"First Beacon: {beaconLocation}");
         }
     }
 }

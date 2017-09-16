@@ -8,61 +8,51 @@
     <None Remove="Application\RiverApp.xaml" />
     <None Remove="Views\ChatView.xaml" />
     <None Remove="Views\LoginView.xaml" />
-    <None Remove="Views\PersonnelSettingsView.xaml" />
+    <None Remove="Views\MainView.xaml" />
     <None Remove="Views\PersonnelView.xaml" />
     <None Remove="Views\ReportView.xaml" />
+    <None Remove="Views\SettingsView.xaml" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Application\RiverApp.xaml" />
     <EmbeddedResource Include="Views\ChatView.xaml" />
     <EmbeddedResource Include="Views\LoginView.xaml" />
-    <EmbeddedResource Include="Views\SettingsView.xaml" />
+    <EmbeddedResource Include="Views\MainView.xaml" />
     <EmbeddedResource Include="Views\PersonnelView.xaml" />
     <EmbeddedResource Include="Views\ReportView.xaml" />
-    <EmbeddedResource Include="Views\MainView.xaml">
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Views\SettingsView.xaml" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Views\ItemDetailPage.xaml.cs">
-      <DependentUpon>ItemDetailPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Update="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-    </Compile>
     <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Application\RiverApp.xaml.cs">
-      <DependentUpon>*.xaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\PersonnelSettingsView.xaml.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>*.xaml</DependentUpon>
-    </Compile>
-    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\PersonnelView.xaml.cs">
       <DependentUpon>*.xaml</DependentUpon>
     </Compile>
     <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\ChatView.xaml.cs">
       <DependentUpon>*.xaml</DependentUpon>
     </Compile>
-    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\ReportView.xaml.cs">
-      <DependentUpon>*.xaml</DependentUpon>
-    </Compile>
     <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\LoginView.xaml.cs">
       <DependentUpon>*.xaml</DependentUpon>
     </Compile>
-    <Compile Update="Views\MainPage.xaml.cs">
-      <DependentUpon>MainView.xaml</DependentUpon>
+    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\MainPage.xaml.cs">
+      <DependentUpon>*.xaml</DependentUpon>
+    </Compile>
+    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\PersonnelView.xaml.cs">
+      <DependentUpon>*.xaml</DependentUpon>
+    </Compile>
+    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\ReportView.xaml.cs">
+      <DependentUpon>*.xaml</DependentUpon>
+    </Compile>
+    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Views\SettingsView.xaml.cs">
+      <DependentUpon>*.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="JsonApiSerializer" Version="0.9.16" />
     <PackageReference Include="MobileCore" Version="1.1.5-pre1" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Xamarin.Forms" Version="2.4.0.269-pre2" />
     <PackageReference Include="Xam.Plugins.Settings" Version="3.0.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Messages\" />
   </ItemGroup>
 </Project>

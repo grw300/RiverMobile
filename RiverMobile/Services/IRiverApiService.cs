@@ -6,7 +6,7 @@ using RiverMobile.Models;
 
 namespace RiverMobile.Services
 {
-    public interface IRiverAPIService
+    public interface IRiverApiService
     {
         Task<IEnumerable<T>> GetRiverModelsAsync<T>(string queryParameters)
             where T : BaseIdentifiable, new();

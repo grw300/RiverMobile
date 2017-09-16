@@ -12,53 +12,33 @@ namespace RiverMobile.Services
 {
     public class LoginService : ILoginService
     {
-        readonly IRiverAPIService riverAPIService;
+        readonly IRiverApiService riverApiService;
         readonly INavigator navigator;
         readonly IViewFactory viewFactory;
 
-        readonly Func<string, string, string> Icon = (platform, icon) =>
-        {
-            switch (platform)
-            {
-                case Device.iOS:
-                    return icon;
-                default:
-                    return null;
-            }
-        };
 
-        Lazy<MasterDetailPage> masterDetailPage;
-        public MasterDetailPage MainPage
-        {
-            get
-            {
-                return masterDetailPage.Value;
-            }
-        }
 
         public LoginService(
-            IRiverAPIService riverAPIService,
+            IRiverApiService riverApiService,
             INavigator navigator,
             IViewFactory viewFactory)
         {
-            this.riverAPIService = riverAPIService;
+            this.riverApiService = riverApiService;
             this.navigator = navigator;
             this.viewFactory = viewFactory;
-
-            masterDetailPage = new Lazy<MasterDetailPage>(ConfigureMainPage);
         }
 
         public async Task LoginAsync(string UserName)
         {
-            var users = await riverAPIService.GetRiverModelsAsync<Personal>($"?filter[name]={UserName}");
+            var users = await riverApiService.GetRiverModelsAsync<Personal>($"?filter[name]={UserName}");
             var user = users.FirstOrDefault();
             Settings.UserName = user.Name;
-            Settings.UserId = user.Id.ToString();
+            Settings.UserId = user.Id.GetValueOrDefault();
 
             Settings.IsLoggedIn = true;
 
-            MainPage.IsPresented = false;
-            Application.Current.MainPage = MainPage;
+            RiverApp.MainView.IsPresented = false;
+            Application.Current.MainPage = RiverApp.MainView;
             await navigator.PopToRootAsync();
         }
 
@@ -72,42 +52,6 @@ namespace RiverMobile.Services
         public Personal Register()
         {
             throw new NotImplementedException();
-        }
-
-        MasterDetailPage ConfigureMainPage()
-        {
-            var mainPage = viewFactory.Resolve<MainViewModel>() as MasterDetailPage;
-
-            var chatPage = viewFactory.Resolve<ChatViewModel>();
-            var personnelPage = viewFactory.Resolve<PersonnelViewModel>();
-            var reportPage = viewFactory.Resolve<ReportViewModel>();
-
-            mainPage.Master = viewFactory.Resolve<SettingsViewModel>();
-
-
-            mainPage.Detail = new TabbedPage
-            {
-                Children =
-                    {
-                        new NavigationPage(personnelPage)
-                        {
-                            Title = "Personnel",
-                            Icon = "Personnel.png"
-                        },
-                        new NavigationPage(reportPage)
-                        {
-                            Title = "Report",
-                            Icon = "Report.png"
-                        },
-                        new NavigationPage(chatPage)
-                        {
-                            Title = "Chat",
-                            Icon = "Chat.png"
-                        }
-                    }
-            };
-
-            return mainPage;
         }
     }
 }

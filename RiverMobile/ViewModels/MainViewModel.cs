@@ -8,26 +8,25 @@ namespace RiverMobile.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
-        readonly IRiverAPIService riverAPIService;
+        readonly IMessageService messageService;
+        readonly IRiverApiService riverApiService;
+
+        (string uuid, string id) beaconRegion;
 
         public MainViewModel(
-            IRiverAPIService riverAPIService)
+            IMessageService messageService,
+            IRiverApiService riverApiService)
         {
-            this.riverAPIService = riverAPIService;
+            this.messageService = messageService;
+            this.riverApiService = riverApiService;
 
+            beaconRegion = (uuid: "B9407F30-F5F8-466E-AFF9-25556B57FE6D", id: "com.GregWill.River");
             Title = "Main";
         }
 
-        public async override void OnAppearing(object obj, EventArgs e)
+        public override void OnAppearing(object obj, EventArgs e)
         {
-            var beaconRegion = (uuid: "B9407F30-F5F8-466E-AFF9-25556B57FE6D", id: "com.GregWill.River");
-            MessagingCenter.Send(this, MessangerKeys.StartRanging, beaconRegion);
-        }
-
-        public override void OnDisappearing(object obj, EventArgs e)
-        {
-            var beaconRegion = (uuid: "B9407F30-F5F8-466E-AFF9-25556B57FE6D", id: "com.GregWill.River");
-            MessagingCenter.Send(this, MessangerKeys.StopRanging, beaconRegion);
+            messageService.Send(new StartRangingMessage(beaconRegion));
         }
     }
 }

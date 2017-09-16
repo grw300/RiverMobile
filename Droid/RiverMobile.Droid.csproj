@@ -145,7 +145,11 @@
     <Compile Include="Helpers\Settings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
-    <Compile Include="MainActivity.cs" />
+    <Compile Include="DroidApplication\RiverDroidBootstrapper.cs" />
+    <Compile Include="DroidApplication\RiverDroidModule.cs" />
+    <Compile Include="DroidApplication\MainActivity.cs" />
+    <Compile Include="Services\IBeaconService.cs" />
+    <Compile Include="Services\BeaconService.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\icon.png" />
@@ -162,6 +166,9 @@
       <Project>{B6CE3C98-981F-4A09-A805-C85C7DA51FC8}</Project>
       <Name>RiverMobile</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

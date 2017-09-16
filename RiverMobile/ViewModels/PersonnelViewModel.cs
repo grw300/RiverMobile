@@ -8,13 +8,15 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 using RiverMobile.Helpers;
+using RiverMobile.Messages;
 
 namespace RiverMobile.ViewModels
 {
     public class PersonnelViewModel : ViewModelBase
     {
+        readonly IMessageService messageService;
         readonly INavigator navigator;
-        readonly IRiverAPIService riverAPIService;
+        readonly IRiverApiService riverApiService;
 
         IEnumerable<PersonalViewModel> personnel;
 
@@ -43,15 +45,28 @@ namespace RiverMobile.ViewModels
         public ImageSource SiteMap { get; set; }
 
         public PersonnelViewModel(
+            IMessageService messageService,
             INavigator navigator,
-            IRiverAPIService riverAPIService)
+            IRiverApiService riverApiService)
         {
+            this.messageService = messageService;
             this.navigator = navigator;
-            this.riverAPIService = riverAPIService;
+            this.riverApiService = riverApiService;
 
             Title = "Personnel";
+        }
 
-            CurrentLocation = 5;
+        public override void OnAppearing(object obj, EventArgs e)
+        {
+            messageService.Subscribe(this, (object messenger, RecordStampMessage message) =>
+            {
+                CurrentLocation = message.Stamp.Location;
+            });
+        }
+
+        public override void OnDisappearing(object obj, EventArgs e)
+        {
+            messageService.Unsubscribe<RecordStampMessage>(this);
         }
     }
 }

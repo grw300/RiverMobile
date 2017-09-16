@@ -16,18 +16,18 @@ namespace RiverMobile.ViewModels
     public class LoginViewModel : ViewModelBase
     {
         readonly ILoginService loginService;
-        readonly IRiverAPIService riverAPIService;
+        readonly IRiverApiService riverApiService;
         readonly IDialogProvider dialogProvider;
 
 
         public LoginViewModel(
             IDialogProvider dialogProvider,
             ILoginService loginService,
-            IRiverAPIService riverAPIService)
+            IRiverApiService riverApiService)
         {
             this.dialogProvider = dialogProvider;
             this.loginService = loginService;
-            this.riverAPIService = riverAPIService;
+            this.riverApiService = riverApiService;
 
             LoginCommand = new Command(async () =>
                 await LoginAsync()
@@ -71,6 +71,11 @@ namespace RiverMobile.ViewModels
             {
                 IsBusy = false;
             }
+        }
+
+        public override void OnAppearing(object obj, EventArgs e)
+        {
+            base.OnAppearing(obj, e);
         }
     }
 }

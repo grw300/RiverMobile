@@ -15,11 +15,14 @@ namespace RiverMobile
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<RiverAPIService>()
-                   .As<IRiverAPIService>()
+            builder.RegisterType<RiverApiService>()
+                   .As<IRiverApiService>()
                    .SingleInstance();
             builder.RegisterType<LoginService>()
                    .As<ILoginService>()
+                   .SingleInstance();
+            builder.RegisterType<MessageService>()
+                   .As<IMessageService>()
                    .SingleInstance();
 
             builder.RegisterType<ChatViewModel>()

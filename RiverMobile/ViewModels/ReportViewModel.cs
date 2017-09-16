@@ -6,11 +6,11 @@ namespace RiverMobile.ViewModels
 {
     public class ReportViewModel : ViewModelBase
     {
-        readonly IRiverAPIService riverAPIService;
+        readonly IRiverApiService riverApiService;
 
-        public ReportViewModel(IRiverAPIService riverAPIService)
+        public ReportViewModel(IRiverApiService riverApiService)
         {
-            this.riverAPIService = riverAPIService;
+            this.riverApiService = riverApiService;
 
             Title = "Report";
         }

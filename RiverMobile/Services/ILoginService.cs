@@ -10,6 +10,5 @@ namespace RiverMobile.Services
         Task LoginAsync(string UserName);
         void LogoutAsync();
         Personal Register();
-        MasterDetailPage MainPage { get; }
     }
 }

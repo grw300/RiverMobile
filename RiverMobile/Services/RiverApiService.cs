@@ -1,31 +1,25 @@
-﻿using JsonApiSerializer;
-using Newtonsoft.Json;
-using RiverMobile.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
-using JsonApiSerializer.JsonConverters;
-using JsonApiSerializer.ContractResolvers;
-using JsonApiSerializer.Util.JsonApiConverter.Util;
-using Newtonsoft.Json.Serialization;
-using Xamarin.Forms;
+using JsonApiSerializer;
+using Newtonsoft.Json;
+using RiverMobile.Helpers;
+using RiverMobile.Models;
 
 namespace RiverMobile.Services
 {
-    public class RiverAPIService : IRiverAPIService
+    public class RiverApiService : IRiverApiService
     {
         static readonly HttpClient httpClient = new HttpClient
         {
-            BaseAddress = new Uri(Application.Current.Properties["RiverServiceBaseAddress"] as string)
+            BaseAddress = new Uri(Settings.RiverApiBaseAddress)
         };
-        static readonly JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings
+
+        static readonly JsonApiSerializerSettings jsonSerializerSettings = new JsonApiSerializerSettings
         {
-
             DefaultValueHandling = DefaultValueHandling.Ignore,
-
         };
 
         public async Task<IEnumerable<T>> GetRiverModelsAsync<T>(string queryParameters = null)
@@ -49,7 +43,7 @@ namespace RiverMobile.Services
         public async Task<T> PostRiverModelAsync<T>(T model)
             where T : BaseIdentifiable
         {
-            var jsonContent = JsonConvert.SerializeObject(model, new JsonApiSerializerSettings());
+            var jsonContent = JsonConvert.SerializeObject(model, jsonSerializerSettings);
             var postContent = new StringContent(jsonContent);
             postContent.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.api+json");
 
@@ -66,7 +60,7 @@ namespace RiverMobile.Services
             var content = await response.Content.ReadAsStringAsync();
 
             return await Task.Factory.StartNew(() =>
-                                               JsonConvert.DeserializeObject<T>(content, new JsonApiSerializerSettings())
+                                               JsonConvert.DeserializeObject<T>(content, jsonSerializerSettings)
             );
         }
     }
