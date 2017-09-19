@@ -1,14 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace RiverMobile.Messages
 {
     public class StartRangingMessage : IMessage
     {
-        public readonly (string uuid, string id) BeaconRegion;
+        public readonly List<(string uuid, string id)> BeaconRegions;
 
-        public StartRangingMessage((string uuid, string id) beaconRegion)
+        public StartRangingMessage(List<(string uuid, string id)> beaconRegions)
         {
-            BeaconRegion = beaconRegion;
+            BeaconRegions = beaconRegions;
         }
     }
 }

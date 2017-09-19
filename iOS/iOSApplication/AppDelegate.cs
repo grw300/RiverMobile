@@ -27,5 +27,15 @@ namespace RiverMobile.iOS
 
             return base.FinishedLaunching(uiApplication, launchOptions);
         }
+
+        public override void DidEnterBackground(UIApplication uiApplication)
+        {
+            Console.WriteLine("App entering background state.");
+        }
+
+        public override void WillEnterForeground(UIApplication uiApplication)
+        {
+            Console.WriteLine("App will enter foreground");
+        }
     }
 }

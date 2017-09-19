@@ -3,6 +3,7 @@ using Autofac;
 using RiverMobile.iOS.Services;
 using RiverMobile.Messages;
 using RiverMobile.Services;
+using UIKit;
 using Xamarin.Forms;
 
 namespace RiverMobile.iOS
@@ -26,14 +27,29 @@ namespace RiverMobile.iOS
             var beaconService = container.Resolve<IBeaconService>();
             var messageService = container.Resolve<IMessageService>();
 
+            WireMessages(beaconService, messageService);
+        }
+
+        void WireMessages(IBeaconService beaconService, IMessageService messageService)
+        {
             messageService.Subscribe(beaconService, (object messanger, StartRangingMessage message) =>
             {
-                beaconService.StartRanging(message.BeaconRegion);
+                beaconService.StartRanging(message.BeaconRegions);
             });
 
             messageService.Subscribe(beaconService, (object messanger, StopRangingMessage message) =>
             {
-                beaconService.StopRanging(message.BeaconRegion);
+                beaconService.StopRanging(message.BeaconRegions);
+            });
+
+            UIApplication.Notifications.ObserveDidEnterBackground((sender, e) =>
+            {
+                messageService.Send(new DidEnterBackground());
+            });
+
+            UIApplication.Notifications.ObserveDidBecomeActive((sender, args) =>
+            {
+                messageService.Send(new DidBecomeActive());
             });
         }
     }

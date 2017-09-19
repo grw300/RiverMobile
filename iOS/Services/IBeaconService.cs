@@ -1,9 +1,15 @@
-﻿namespace RiverMobile.iOS.Services
+﻿using System.Collections.Generic;
+
+namespace RiverMobile.iOS.Services
 {
     public interface IBeaconService
     {
-        void StartRanging((string uuid, string id) beaconRegion);
+        void StartMonitoring(List<(string uuid, string id)> beaconRegions);
 
-        void StopRanging((string uuid, string id) beaconRegion);
+        void StopMonitoring(List<(string uuid, string id)> beaconRegions);
+
+        void StartRanging(List<(string uuid, string id)> beaconRegions);
+
+        void StopRanging(List<(string uuid, string id)> beaconRegions);
     }
 }

@@ -15,7 +15,7 @@ namespace RiverMobile.iOS.Services
     {
         readonly IMessageService messageService;
 
-        readonly CLLocationManager locationManager = new CLLocationManager();
+        readonly static CLLocationManager locationManager = new CLLocationManager();
         IList<CLBeaconRegion> clBeaconRegions = new List<CLBeaconRegion>();
 
         public BeaconService(
@@ -39,61 +39,130 @@ namespace RiverMobile.iOS.Services
                 locationManager.AllowsBackgroundLocationUpdates = true;
             }
 
+            WireLocationManager();
+            WireMessage();
+        }
+
+
+        public void StartMonitoring(List<(string uuid, string id)> beaconRegions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StopMonitoring(List<(string uuid, string id)> beaconRegions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StartRanging(List<(string uuid, string id)> beaconRegions)
+        {
+            var matchedBeaconRegions = beaconRegions
+                .Where(c =>
+                       !locationManager.RangedRegions
+                       .Any(b =>
+                            (b as CLBeaconRegion).ProximityUuid.AsString() == c.uuid &&
+                            (b as CLBeaconRegion).Identifier == c.id
+                           )
+                      );
+
+            foreach (var beaconRegion in matchedBeaconRegions)
+            {
+
+
+                var beaconUUID = new NSUuid(beaconRegion.uuid);
+
+                var clBeaconRegion = new CLBeaconRegion(beaconUUID, beaconRegion.id)
+                {
+                    NotifyEntryStateOnDisplay = true,
+                    NotifyOnEntry = true,
+                    NotifyOnExit = true
+                };
+
+                clBeaconRegions.Add(clBeaconRegion);
+
+                locationManager.StartMonitoring(clBeaconRegion);
+                locationManager.StartRangingBeacons(clBeaconRegion);
+            }
+        }
+
+        public void StopRanging(List<(string uuid, string id)> beaconRegions)
+        {
+            var matchedCLBeaconRegions = clBeaconRegions
+                .Where(c =>
+                       beaconRegions
+                       .Any(b =>
+                            b.uuid == c.ProximityUuid.AsString() &&
+                            b.id == c.Identifier
+                           )
+                      );
+
+            foreach (var clBeaconRegion in matchedCLBeaconRegions)
+            {
+                locationManager.StopMonitoring(clBeaconRegion);
+                locationManager.StopRangingBeacons(clBeaconRegion);
+
+                clBeaconRegions.Remove(clBeaconRegion);
+            }
+        }
+
+        void WireLocationManager()
+        {
+            locationManager.DidStartMonitoringForRegion += (sender, e) =>
+            {
+                locationManager.RequestState(e.Region);
+            };
+
+            locationManager.DidDetermineState += (sender, e) =>
+            {
+                if (e.State == CLRegionState.Inside)
+                {
+                    messageService.Subscribe(this, (object messenger, RecordStampMessage message) =>
+                    {
+                        PrintBeaconLocation(message.Stamp.Location);
+                    });
+
+                    locationManager.DidRangeBeacons += OnDidRangeBeacons;
+                }
+                else
+                {
+                    messageService.Unsubscribe<RecordStampMessage>(this);
+                    //locationManager.DidRangeBeacons -= OnDidRangeBeacons;
+                }
+            };
+
             locationManager.RegionEntered += (sender, e) =>
             {
-                messageService.Subscribe(this, (object messenger, RecordStampMessage message) =>
-                {
-                    PrintBeaconLocation(message.Stamp.Location);
-                });
-
-                locationManager.DidRangeBeacons += OnDidRangeBeacons;
+                Console.WriteLine($"Entered Region: {e.Region.Description}");
             };
 
             locationManager.RegionLeft += (sender, e) =>
             {
-                locationManager.DidRangeBeacons -= OnDidRangeBeacons;
+                Console.WriteLine($"Exited Region: {e.Region.Description}");
             };
         }
 
-        public void StartRanging((string uuid, string id) beaconRegion)
+        void WireMessage()
         {
-            var beaconUUID = new NSUuid(beaconRegion.uuid);
-
-            var clBeaconRegion = new CLBeaconRegion(beaconUUID, beaconRegion.id)
+            messageService.Subscribe(this, (object messenger, DidEnterBackground message) =>
             {
-                NotifyEntryStateOnDisplay = true,
-                NotifyOnEntry = true,
-                NotifyOnExit = true
-            };
+                locationManager.StartUpdatingLocation();
+            });
 
-            clBeaconRegions.Add(clBeaconRegion);
-
-            locationManager.StartMonitoring(clBeaconRegion);
-            locationManager.StartRangingBeacons(clBeaconRegion);
-        }
-
-        public void StopRanging((string uuid, string id) beaconRegion)
-        {
-            var clBeaconRegion = clBeaconRegions
-                .FirstOrDefault(
-                    region =>
-                        region.ProximityUuid.AsString() == beaconRegion.uuid &&
-                        region.Identifier == beaconRegion.id
-                    );
-
-            locationManager.StopMonitoring(clBeaconRegion);
-            locationManager.StopRangingBeacons(clBeaconRegion);
-
-            clBeaconRegions.Remove(clBeaconRegion);
+            messageService.Subscribe(this, (object messenger, DidBecomeActive message) =>
+            {
+                locationManager.StopUpdatingLocation();
+            });
         }
 
         void OnDidRangeBeacons(object sender, CLRegionBeaconsRangedEventArgs e)
         {
             var firstBeacon = e.Beacons.FirstOrDefault();
-            var location = firstBeacon.Minor.Int32Value;
+            var location = firstBeacon?.Minor.Int32Value ?? -1;
 
             if (location == Settings.CurrentLocation)
                 return;
+
+            Settings.CurrentLocation = location;
 
             var stamp = new Stamp
             {

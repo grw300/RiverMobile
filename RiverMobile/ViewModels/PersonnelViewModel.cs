@@ -18,20 +18,13 @@ namespace RiverMobile.ViewModels
         readonly INavigator navigator;
         readonly IRiverApiService riverApiService;
 
+        int currentLocation = Settings.CurrentLocation;
         IEnumerable<PersonalViewModel> personnel;
 
         public int CurrentLocation
         {
-            get => Settings.CurrentLocation;
-            private set
-            {
-                if (Settings.CurrentLocation == value)
-                    return;
-
-                int currentLocation = -1;
-                SetProperty(ref currentLocation, value);
-                Settings.CurrentLocation = currentLocation;
-            }
+            get => currentLocation;
+            private set => SetProperty(ref currentLocation, value);
         }
 
         public IEnumerable<PersonalViewModel> NearbyPersonnel
@@ -53,20 +46,38 @@ namespace RiverMobile.ViewModels
             this.navigator = navigator;
             this.riverApiService = riverApiService;
 
+            WireMessages();
+
             Title = "Personnel";
         }
 
-        public override void OnAppearing(object obj, EventArgs e)
+        void WireMessages()
         {
-            messageService.Subscribe(this, (object messenger, RecordStampMessage message) =>
+            messageService.Subscribe(this, (object messenger, DidEnterBackground message) =>
             {
-                CurrentLocation = message.Stamp.Location;
+                messageService.Unsubscribe<RecordStampMessage>(this);
+            });
+
+            messageService.Subscribe(this, (object messenger, DidBecomeActive message) =>
+            {
+                messageService.Subscribe(this, (object nestedMessenger, RecordStampMessage nestedMessage) =>
+                {
+                    CurrentLocation = nestedMessage.Stamp.Location;
+                });
             });
         }
 
-        public override void OnDisappearing(object obj, EventArgs e)
-        {
-            messageService.Unsubscribe<RecordStampMessage>(this);
-        }
+        //public override void OnAppearing(object obj, EventArgs e)
+        //{
+        //    messageService.Subscribe(this, (object messenger, RecordStampMessage message) =>
+        //    {
+        //        CurrentLocation = message.Stamp.Location;
+        //    });
+        //}
+
+        //public override void OnDisappearing(object obj, EventArgs e)
+        //{
+        //    messageService.Unsubscribe<RecordStampMessage>(this);
+        //}
     }
 }
