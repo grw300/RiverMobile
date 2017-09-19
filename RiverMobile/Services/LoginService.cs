@@ -12,19 +12,17 @@ namespace RiverMobile.Services
 {
     public class LoginService : ILoginService
     {
-        readonly IRiverApiService riverApiService;
         readonly INavigator navigator;
+        readonly IRiverApiService riverApiService;
         readonly IViewFactory viewFactory;
 
-
-
         public LoginService(
-            IRiverApiService riverApiService,
             INavigator navigator,
+            IRiverApiService riverApiService,
             IViewFactory viewFactory)
         {
-            this.riverApiService = riverApiService;
             this.navigator = navigator;
+            this.riverApiService = riverApiService;
             this.viewFactory = viewFactory;
         }
 
