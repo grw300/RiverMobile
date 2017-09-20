@@ -16,7 +16,7 @@ namespace RiverMobile.iOS.Services
         readonly IMessageService messageService;
 
         readonly static CLLocationManager locationManager = new CLLocationManager();
-        IList<CLBeaconRegion> clBeaconRegions = new List<CLBeaconRegion>();
+        HashSet<(string uuid, string id)> beaconRegionsSet = new HashSet<(string uuid, string id)>();
 
         public BeaconService(
             IMessageService messageService)
@@ -56,29 +56,13 @@ namespace RiverMobile.iOS.Services
 
         public void StartRanging(List<(string uuid, string id)> beaconRegions)
         {
-            var matchedBeaconRegions = beaconRegions
-                .Where(c =>
-                       !locationManager.RangedRegions
-                       .Any(b =>
-                            (b as CLBeaconRegion).ProximityUuid.AsString() == c.uuid &&
-                            (b as CLBeaconRegion).Identifier == c.id
-                           )
-                      );
+            var newBeaconRegions = beaconRegions.Except(beaconRegionsSet);
 
-            foreach (var beaconRegion in matchedBeaconRegions)
+            foreach (var beaconRegion in newBeaconRegions)
             {
+                var clBeaconRegion = CLBeaconRegionFactory(beaconRegion);
 
-
-                var beaconUUID = new NSUuid(beaconRegion.uuid);
-
-                var clBeaconRegion = new CLBeaconRegion(beaconUUID, beaconRegion.id)
-                {
-                    NotifyEntryStateOnDisplay = true,
-                    NotifyOnEntry = true,
-                    NotifyOnExit = true
-                };
-
-                clBeaconRegions.Add(clBeaconRegion);
+                beaconRegionsSet.Add(beaconRegion);
 
                 locationManager.StartMonitoring(clBeaconRegion);
                 locationManager.StartRangingBeacons(clBeaconRegion);
@@ -87,22 +71,29 @@ namespace RiverMobile.iOS.Services
 
         public void StopRanging(List<(string uuid, string id)> beaconRegions)
         {
-            var matchedCLBeaconRegions = clBeaconRegions
-                .Where(c =>
-                       beaconRegions
-                       .Any(b =>
-                            b.uuid == c.ProximityUuid.AsString() &&
-                            b.id == c.Identifier
-                           )
-                      );
+            var removeBeaconRegions = beaconRegions.Intersect(beaconRegionsSet);
 
-            foreach (var clBeaconRegion in matchedCLBeaconRegions)
+            foreach (var beaconRegion in removeBeaconRegions)
             {
+                var clBeaconRegion = CLBeaconRegionFactory(beaconRegion);
+
                 locationManager.StopMonitoring(clBeaconRegion);
                 locationManager.StopRangingBeacons(clBeaconRegion);
 
-                clBeaconRegions.Remove(clBeaconRegion);
+                beaconRegionsSet.Remove(beaconRegion);
             }
+        }
+
+        CLBeaconRegion CLBeaconRegionFactory((string uuid, string id) beaconRegion)
+        {
+            var beaconUUID = new NSUuid(beaconRegion.uuid);
+
+            return new CLBeaconRegion(beaconUUID, beaconRegion.id)
+            {
+                NotifyEntryStateOnDisplay = true,
+                NotifyOnEntry = true,
+                NotifyOnExit = true
+            };
         }
 
         void WireLocationManager()

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MobileCore.Factories;
 using MobileCore.Interfaces;
 using RiverMobile.Helpers;
+using RiverMobile.Messages;
 using RiverMobile.Models;
 using RiverMobile.ViewModels;
 using Xamarin.Forms;
@@ -15,17 +17,22 @@ namespace RiverMobile.Services
         readonly IRiverApiService riverApiService;
         readonly INavigator navigator;
         readonly IViewFactory viewFactory;
-
-
+        readonly IMessageService messageService;
+        readonly List<(string uuid, string id)> beaconRegions = new List<(string uuid, string id)>();
 
         public LoginService(
             IRiverApiService riverApiService,
+            IMessageService messageService,
             INavigator navigator,
             IViewFactory viewFactory)
         {
             this.riverApiService = riverApiService;
+            this.messageService = messageService;
             this.navigator = navigator;
             this.viewFactory = viewFactory;
+
+            beaconRegions.Add((uuid: "B9407F30-F5F8-466E-AFF9-25556B57FE6D", id: "com.GregWill.RiverB9407F"));
+            beaconRegions.Add((uuid: "CBE70FB5-6155-4D2D-BC3C-E9F4C2CB18E6", id: "com.GregWill.RiverCBE70F"));
         }
 
         public async Task LoginAsync(string UserName)
@@ -45,6 +52,8 @@ namespace RiverMobile.Services
         public void LogoutAsync()
         {
             Settings.IsLoggedIn = false;
+
+            messageService.Send(new StopRangingMessage(beaconRegions));
 
             Application.Current.MainPage = viewFactory.Resolve<LoginViewModel>();
         }

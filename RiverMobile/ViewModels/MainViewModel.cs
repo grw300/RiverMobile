@@ -11,8 +11,7 @@ namespace RiverMobile.ViewModels
     {
         readonly IMessageService messageService;
         readonly IRiverApiService riverApiService;
-
-        List<(string uuid, string id)> beaconRegions = new List<(string uuid, string id)>();
+        readonly List<(string uuid, string id)> beaconRegions = new List<(string uuid, string id)>();
 
         public MainViewModel(
             IMessageService messageService,
