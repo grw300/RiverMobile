@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using CoreLocation;
+﻿using CoreLocation;
 using Foundation;
 using RiverMobile.Helpers;
 using RiverMobile.Messages;
 using RiverMobile.Models;
 using RiverMobile.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UIKit;
 
 namespace RiverMobile.iOS.Services
@@ -40,7 +40,7 @@ namespace RiverMobile.iOS.Services
             }
 
             WireLocationManager();
-            WireMessage();
+            WireMessages();
         }
 
 
@@ -132,7 +132,7 @@ namespace RiverMobile.iOS.Services
             };
         }
 
-        void WireMessage()
+        void WireMessages()
         {
             messageService.Subscribe(this, (object messenger, DidEnterBackground message) =>
             {

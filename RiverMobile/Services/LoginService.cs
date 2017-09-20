@@ -14,21 +14,22 @@ namespace RiverMobile.Services
 {
     public class LoginService : ILoginService
     {
-        readonly IRiverApiService riverApiService;
-        readonly INavigator navigator;
-        readonly IViewFactory viewFactory;
         readonly IMessageService messageService;
+        readonly INavigator navigator;
+        readonly IRiverApiService riverApiService;
+        readonly IViewFactory viewFactory;
+
         readonly List<(string uuid, string id)> beaconRegions = new List<(string uuid, string id)>();
 
         public LoginService(
-            IRiverApiService riverApiService,
             IMessageService messageService,
             INavigator navigator,
+            IRiverApiService riverApiService,
             IViewFactory viewFactory)
         {
-            this.riverApiService = riverApiService;
             this.messageService = messageService;
             this.navigator = navigator;
+            this.riverApiService = riverApiService;
             this.viewFactory = viewFactory;
 
             beaconRegions.Add((uuid: "B9407F30-F5F8-466E-AFF9-25556B57FE6D", id: "com.GregWill.RiverB9407F"));
