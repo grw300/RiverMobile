@@ -16,7 +16,8 @@ namespace RiverMobile.iOS.Services
         readonly IMessageService messageService;
 
         readonly static CLLocationManager locationManager = new CLLocationManager();
-        HashSet<(string uuid, string id)> beaconRegionsSet = new HashSet<(string uuid, string id)>();
+        HashSet<BeaconRegion> monitoredBeaconRegions = new HashSet<BeaconRegion>();
+        HashSet<BeaconRegion> rangedBeaconRegions = new HashSet<BeaconRegion>();
 
         public BeaconService(
             IMessageService messageService)
@@ -43,35 +44,52 @@ namespace RiverMobile.iOS.Services
             WireMessages();
         }
 
-
-        public void StartMonitoring(List<(string uuid, string id)> beaconRegions)
+        public void StartMonitoring(HashSet<BeaconRegion> beaconRegions)
         {
-            throw new NotImplementedException();
-        }
-
-        public void StopMonitoring(List<(string uuid, string id)> beaconRegions)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void StartRanging(List<(string uuid, string id)> beaconRegions)
-        {
-            var newBeaconRegions = beaconRegions.Except(beaconRegionsSet);
+            var newBeaconRegions = beaconRegions.Except(monitoredBeaconRegions);
 
             foreach (var beaconRegion in newBeaconRegions)
             {
                 var clBeaconRegion = CLBeaconRegionFactory(beaconRegion);
 
-                beaconRegionsSet.Add(beaconRegion);
+                monitoredBeaconRegions.Add(beaconRegion);
+
+                locationManager.StartMonitoring(clBeaconRegion);
+            };
+        }
+
+        public void StopMonitoring(HashSet<BeaconRegion> beaconRegions)
+        {
+            var newBeaconRegions = beaconRegions.Intersect(monitoredBeaconRegions);
+
+            foreach (var beaconRegion in newBeaconRegions)
+            {
+                var clBeaconRegion = CLBeaconRegionFactory(beaconRegion);
+
+                locationManager.StartMonitoring(clBeaconRegion);
+
+                monitoredBeaconRegions.Remove(beaconRegion);
+            };
+        }
+
+        public void StartRanging(HashSet<BeaconRegion> beaconRegions)
+        {
+            var newBeaconRegions = beaconRegions.Except(rangedBeaconRegions);
+
+            foreach (var beaconRegion in newBeaconRegions)
+            {
+                var clBeaconRegion = CLBeaconRegionFactory(beaconRegion);
+
+                rangedBeaconRegions.Add(beaconRegion);
 
                 locationManager.StartMonitoring(clBeaconRegion);
                 locationManager.StartRangingBeacons(clBeaconRegion);
             }
         }
 
-        public void StopRanging(List<(string uuid, string id)> beaconRegions)
+        public void StopRanging(HashSet<BeaconRegion> beaconRegions)
         {
-            var removeBeaconRegions = beaconRegions.Intersect(beaconRegionsSet);
+            var removeBeaconRegions = beaconRegions.Intersect(rangedBeaconRegions);
 
             foreach (var beaconRegion in removeBeaconRegions)
             {
@@ -80,20 +98,8 @@ namespace RiverMobile.iOS.Services
                 locationManager.StopMonitoring(clBeaconRegion);
                 locationManager.StopRangingBeacons(clBeaconRegion);
 
-                beaconRegionsSet.Remove(beaconRegion);
+                rangedBeaconRegions.Remove(beaconRegion);
             }
-        }
-
-        CLBeaconRegion CLBeaconRegionFactory((string uuid, string id) beaconRegion)
-        {
-            var beaconUUID = new NSUuid(beaconRegion.uuid);
-
-            return new CLBeaconRegion(beaconUUID, beaconRegion.id)
-            {
-                NotifyEntryStateOnDisplay = true,
-                NotifyOnEntry = true,
-                NotifyOnExit = true
-            };
         }
 
         void WireLocationManager()
@@ -134,6 +140,16 @@ namespace RiverMobile.iOS.Services
 
         void WireMessages()
         {
+            messageService.Subscribe(this, (object messanger, StartRangingMessage message) =>
+            {
+                StartRanging(message.BeaconRegions);
+            });
+
+            messageService.Subscribe(this, (object messanger, StopRangingMessage message) =>
+            {
+                StopRanging(message.BeaconRegions);
+            });
+
             messageService.Subscribe(this, (object messenger, DidEnterBackground message) =>
             {
                 locationManager.StartUpdatingLocation();
@@ -168,6 +184,35 @@ namespace RiverMobile.iOS.Services
         protected void PrintBeaconLocation(int beaconLocation)
         {
             Console.WriteLine($"First Beacon: {beaconLocation}");
+        }
+
+        CLBeaconRegion CLBeaconRegionFactory(BeaconRegion beaconRegion)
+        {
+            CLBeaconRegion clBeaconRegion;
+
+            if (beaconRegion.Minor.HasValue)
+                clBeaconRegion = new CLBeaconRegion(
+                    new NSUuid(beaconRegion.Uuid),
+                    beaconRegion.Major.Value,
+                    beaconRegion.Minor.Value,
+                    beaconRegion.Id);
+
+            else if (beaconRegion.Major.HasValue)
+                clBeaconRegion = new CLBeaconRegion(
+                    new NSUuid(beaconRegion.Uuid),
+                    beaconRegion.Major.Value,
+                    beaconRegion.Id);
+
+            else
+                clBeaconRegion = new CLBeaconRegion(
+                    new NSUuid(beaconRegion.Uuid),
+                    beaconRegion.Id);
+
+            clBeaconRegion.NotifyEntryStateOnDisplay = true;
+            clBeaconRegion.NotifyOnEntry = true;
+            clBeaconRegion.NotifyOnExit = true;
+
+            return clBeaconRegion;
         }
     }
 }

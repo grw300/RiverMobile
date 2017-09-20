@@ -24,24 +24,13 @@ namespace RiverMobile.iOS
         {
             base.ConfigureApplication(container);
 
-            var beaconService = container.Resolve<IBeaconService>();
             var messageService = container.Resolve<IMessageService>();
 
-            WireMessages(beaconService, messageService);
+            WireMessages(messageService);
         }
 
-        void WireMessages(IBeaconService beaconService, IMessageService messageService)
+        void WireMessages(IMessageService messageService)
         {
-            messageService.Subscribe(beaconService, (object messanger, StartRangingMessage message) =>
-            {
-                beaconService.StartRanging(message.BeaconRegions);
-            });
-
-            messageService.Subscribe(beaconService, (object messanger, StopRangingMessage message) =>
-            {
-                beaconService.StopRanging(message.BeaconRegions);
-            });
-
             UIApplication.Notifications.ObserveDidEnterBackground((sender, e) =>
             {
                 messageService.Send(new DidEnterBackground());

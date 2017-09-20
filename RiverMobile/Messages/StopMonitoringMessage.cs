@@ -1,13 +1,14 @@
-﻿using System;
+﻿using RiverMobile.Models;
+using System;
 using System.Collections.Generic;
 
 namespace RiverMobile.Messages
 {
     public class StopMonitoringMessage : IMessage
     {
-        public readonly List<(string uuid, string id)> BeaconRegions;
+        public readonly HashSet<BeaconRegion> BeaconRegions;
 
-        public StopMonitoringMessage(List<(string uuid, string id)> beaconRegions)
+        public StopMonitoringMessage(HashSet<BeaconRegion> beaconRegions)
         {
             BeaconRegions = beaconRegions;
         }

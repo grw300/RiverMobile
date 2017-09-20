@@ -13,12 +13,12 @@ namespace RiverMobile.Droid.Services
             this.messageService = messageService;
         }
 
-        public void StartRanging((string uuid, string id) beaconRegion)
+        public void StartRanging(BeaconRegion beaconRegion)
         {
             throw new NotImplementedException();
         }
 
-        public void StopRanging((string uuid, string id) beaconRegion)
+        public void StopRanging(BeaconRegion beaconRegion)
         {
             throw new NotImplementedException();
         }

@@ -3,8 +3,8 @@ namespace RiverMobile.Droid.Services
 {
     public interface IBeaconService
     {
-        void StartRanging((string uuid, string id) beaconRegion);
+        void StartRanging(BeaconRegion beaconRegion);
 
-        void StopRanging((string uuid, string id) beaconRegion);
+        void StopRanging(BeaconRegion beaconRegion);
     }
 }
