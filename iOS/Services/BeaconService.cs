@@ -44,57 +44,6 @@ namespace RiverMobile.iOS.Services
             WireMessages();
         }
 
-        void WireLocationManager()
-        {
-            locationManager.DidStartMonitoringForRegion += (sender, e) =>
-            {
-                locationManager.RequestState(e.Region);
-            };
-
-            locationManager.DidDetermineState += (sender, e) =>
-            {
-                if (e.State == CLRegionState.Inside)
-                {
-                    messageService.Subscribe(this, (object messenger, RecordStampMessage message) =>
-                    {
-                        PrintBeaconLocation(message.Stamp.Location);
-                    });
-
-                    locationManager.DidRangeBeacons += OnDidRangeBeacons;
-                }
-                else
-                {
-                    messageService.Unsubscribe<RecordStampMessage>(this);
-                    //locationManager.DidRangeBeacons -= OnDidRangeBeacons;
-                }
-            };
-
-            locationManager.RegionEntered += (sender, e) =>
-            {
-                Console.WriteLine($"Entered Region: {e.Region.Description}");
-            };
-
-            locationManager.RegionLeft += (sender, e) =>
-            {
-                Console.WriteLine($"Exited Region: {e.Region.Description}");
-            };
-        }
-
-        void WireMessages()
-        {
-            messageService.Subscribe(this, (object messenger, DidEnterBackground message) =>
-            {
-                //TODO: this is a hack to get around backgrounding limitations on iOS
-                //You need to define a 5-color-mapping scheme to get around this
-                locationManager.StartUpdatingLocation();
-            });
-
-            messageService.Subscribe(this, (object messenger, DidBecomeActive message) =>
-            {
-                locationManager.StopUpdatingLocation();
-            });
-        }
-
         public void StartMonitoring(HashSet<BeaconRegion> beaconRegions)
         {
             //TODO: figure out if this is really nessessary
