@@ -14,6 +14,7 @@ namespace RiverMobile.Services
 {
     public class LoginService : ILoginService
     {
+        readonly IBeaconService beaconService;
         readonly IMessageService messageService;
         readonly INavigator navigator;
         readonly IRiverApiService riverApiService;
@@ -22,11 +23,13 @@ namespace RiverMobile.Services
         readonly HashSet<BeaconRegion> beaconRegions = new HashSet<BeaconRegion>();
 
         public LoginService(
+            IBeaconService beaconService,
             IMessageService messageService,
             INavigator navigator,
             IRiverApiService riverApiService,
             IViewFactory viewFactory)
         {
+            this.beaconService = beaconService;
             this.messageService = messageService;
             this.navigator = navigator;
             this.riverApiService = riverApiService;
@@ -37,8 +40,10 @@ namespace RiverMobile.Services
             beaconRegions.Add(
                 new BeaconRegion("B9407F30-F5F8-466E-AFF9-25556B57FE6D",
                                  "com.GregWill.RiverB9407F"));
-                
-            //beaconRegions.Add((uuid: "CBE70FB5-6155-4D2D-BC3C-E9F4C2CB18E6", id: "com.GregWill.RiverCBE70F"));
+
+            //beaconRegions.Add(
+            //new BeaconRegion("CBE70FB5-6155-4D2D-BC3C-E9F4C2CB18E6",
+            //"com.GregWill.RiverCBE70F"));
         }
 
         public async Task LoginAsync(string UserName)
@@ -59,7 +64,7 @@ namespace RiverMobile.Services
         {
             Settings.IsLoggedIn = false;
 
-            messageService.Send(new StopRangingMessage(beaconRegions));
+            beaconService.StopRanging(beaconRegions);
 
             Application.Current.MainPage = viewFactory.Resolve<LoginViewModel>();
         }

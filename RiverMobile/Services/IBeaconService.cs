@@ -1,7 +1,8 @@
-﻿using RiverMobile.Models;
+﻿using System;
+using RiverMobile.Models;
 using System.Collections.Generic;
 
-namespace RiverMobile.iOS.Services
+namespace RiverMobile.Services
 {
     public interface IBeaconService
     {

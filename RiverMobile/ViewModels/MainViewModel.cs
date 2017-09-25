@@ -9,14 +9,17 @@ namespace RiverMobile.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
+        readonly IBeaconService beaconService;
         readonly IMessageService messageService;
         readonly IRiverApiService riverApiService;
         readonly HashSet<BeaconRegion> beaconRegions = new HashSet<BeaconRegion>();
 
         public MainViewModel(
+            IBeaconService beaconService,
             IMessageService messageService,
             IRiverApiService riverApiService)
         {
+            this.beaconService = beaconService;
             this.messageService = messageService;
             this.riverApiService = riverApiService;
 
@@ -31,7 +34,8 @@ namespace RiverMobile.ViewModels
 
         public override void OnAppearing(object obj, EventArgs e)
         {
-            messageService.Send(new StartRangingMessage(beaconRegions));
+            beaconService.StartMonitoring(beaconRegions);
+            beaconService.StartRanging(beaconRegions);
         }
     }
 }
