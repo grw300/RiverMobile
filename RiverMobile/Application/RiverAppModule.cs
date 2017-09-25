@@ -52,10 +52,6 @@ namespace RiverMobile
                    .SingleInstance();
             builder.RegisterType<SettingsView>()
                    .SingleInstance();
-
-            //builder.RegisterInstance<Func<Page>>(() =>
-            //    ((TabbedPage)Application.Current.MainPage).CurrentPage
-            //);
         }
     }
 }

@@ -46,6 +46,9 @@ namespace RiverMobile.iOS.Services
 
         public void StartMonitoring(HashSet<BeaconRegion> beaconRegions)
         {
+            //TODO: figure out if this is really nessessary
+            // i.e. what happens if you add a region that already exists?
+            // this needs to be answered for all of these methods
             var newBeaconRegions = beaconRegions.Except(monitoredBeaconRegions);
 
             foreach (var beaconRegion in newBeaconRegions)
@@ -140,6 +143,16 @@ namespace RiverMobile.iOS.Services
 
         void WireMessages()
         {
+            messageService.Subscribe(this, (object messanger, StartMonitoringMessage message) =>
+            {
+                StartMonitoring(message.BeaconRegions);
+            });
+
+            messageService.Subscribe(this, (object messanger, StopMonitoringMessage message) =>
+            {
+                StopMonitoring(message.BeaconRegions);
+            });
+
             messageService.Subscribe(this, (object messanger, StartRangingMessage message) =>
             {
                 StartRanging(message.BeaconRegions);
