@@ -159,7 +159,6 @@
   <ItemGroup>
     <Compile Include="Services\BeaconService.cs" />
     <Compile Include="Helpers\Settings.cs" />
-    <Compile Include="Services\IBeaconService.cs" />
     <Compile Include="iOSApplication\AppDelegate.cs" />
     <Compile Include="iOSApplication\RiveriOSModule.cs" />
     <Compile Include="iOSApplication\RiveriOSBootstrapper.cs" />

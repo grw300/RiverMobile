@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using RiverMobile.iOS.Services;
+using RiverMobile.Services;
 
 namespace RiverMobile.iOS
 {

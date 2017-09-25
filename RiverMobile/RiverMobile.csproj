@@ -5,6 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Application\RiverApp.xaml" />
+    <EmbeddedResource Include="Views\ChatView.xaml" />
+    <EmbeddedResource Include="Views\LoginView.xaml" />
+    <EmbeddedResource Include="Views\MainView.xaml" />
+    <EmbeddedResource Include="Views\PersonnelView.xaml" />
+    <EmbeddedResource Include="Views\ReportView.xaml" />
+    <EmbeddedResource Include="Views\SettingsView.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Application\RiverApp.xaml" />
     <None Remove="Views\ChatView.xaml" />
     <None Remove="Views\LoginView.xaml" />

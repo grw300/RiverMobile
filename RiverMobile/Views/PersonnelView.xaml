@@ -24,6 +24,7 @@
                 HasShadow="false"
                 OutlineColor="#B2B2B2">
                 <ListView
+                    CachingStrategy="RecycleElement"
                     HorizontalOptions="FillAndExpand"
                     VerticalOptions="FillAndExpand"
                     ItemsSource="{Binding NearbyPersonnel}" >
