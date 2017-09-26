@@ -9,6 +9,7 @@ using RiverMobile.Messages;
 using RiverMobile.Models;
 using RiverMobile.ViewModels;
 using Xamarin.Forms;
+using Newtonsoft.Json;
 
 namespace RiverMobile.Services
 {
@@ -52,6 +53,7 @@ namespace RiverMobile.Services
             var user = users.FirstOrDefault();
             Settings.UserName = user.Name;
             Settings.UserId = user.Id.GetValueOrDefault();
+            Settings.UserJson = JsonConvert.SerializeObject(user, new JsonSerializerSettings());
 
             Settings.IsLoggedIn = true;
 

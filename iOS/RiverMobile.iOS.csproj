@@ -28,7 +28,7 @@
     <IOSDebuggerPort>20002</IOSDebuggerPort>
     <MtouchLink>None</MtouchLink>
     <MtouchArch>i386, x86_64</MtouchArch>
-    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
     <DeviceSpecificBuild>false</DeviceSpecificBuild>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
@@ -157,12 +157,15 @@
     <BundleResource Include="Resources\Report%403x.png" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Services\StampUploadService.cs" />
     <Compile Include="Services\BeaconService.cs" />
     <Compile Include="Helpers\Settings.cs" />
     <Compile Include="iOSApplication\AppDelegate.cs" />
     <Compile Include="iOSApplication\RiveriOSModule.cs" />
     <Compile Include="iOSApplication\RiveriOSBootstrapper.cs" />
     <Compile Include="iOSApplication\Main.cs" />
+    <Compile Include="Services\IRiverApiUploadDelegate.cs" />
+    <Compile Include="Services\RiverApiUploadDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

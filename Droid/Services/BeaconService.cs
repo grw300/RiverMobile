@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using RiverMobile.Models;
 using RiverMobile.Services;
 
 namespace RiverMobile.Droid.Services
@@ -13,12 +15,22 @@ namespace RiverMobile.Droid.Services
             this.messageService = messageService;
         }
 
-        public void StartRanging(BeaconRegion beaconRegion)
+        public void StartMonitoring(HashSet<BeaconRegion> beaconRegions)
         {
             throw new NotImplementedException();
         }
 
-        public void StopRanging(BeaconRegion beaconRegion)
+        public void StartRanging(HashSet<BeaconRegion> beaconRegions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StopMonitoring(HashSet<BeaconRegion> beaconRegions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StopRanging(HashSet<BeaconRegion> beaconRegions)
         {
             throw new NotImplementedException();
         }

@@ -1,5 +1,7 @@
 ﻿using CoreLocation;
 using Foundation;
+using JsonApiSerializer.JsonApi;
+using Newtonsoft.Json;
 using RiverMobile.Helpers;
 using RiverMobile.Messages;
 using RiverMobile.Models;
@@ -18,6 +20,8 @@ namespace RiverMobile.iOS.Services
         readonly static CLLocationManager locationManager = new CLLocationManager();
         HashSet<BeaconRegion> monitoredBeaconRegions = new HashSet<BeaconRegion>();
         HashSet<BeaconRegion> rangedBeaconRegions = new HashSet<BeaconRegion>();
+
+        public event EventHandler StampRecorded;
 
         public BeaconService(
             IMessageService messageService)
@@ -170,7 +174,10 @@ namespace RiverMobile.iOS.Services
             {
                 Time = DateTime.UtcNow,
                 Location = location,
-                PersonalId = Settings.UserId
+                Personal = new Relationship<Personal>
+                {
+                    Data = JsonConvert.DeserializeObject<Personal>(Settings.UserJson, new JsonSerializerSettings())
+                }
             };
 
             messageService.Send(new RecordStampMessage(stamp));

@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using RiverMobile.Droid.Services;
+using RiverMobile.Services;
 
 namespace RiverMobile.Droid
 {

@@ -9,6 +9,7 @@ using System.Windows.Input;
 using Xamarin.Forms;
 using RiverMobile.Helpers;
 using RiverMobile.Messages;
+using RiverMobile.Models;
 
 namespace RiverMobile.ViewModels
 {
@@ -47,6 +48,8 @@ namespace RiverMobile.ViewModels
             this.riverApiService = riverApiService;
 
             WireMessages();
+
+
 
             Title = "Personnel";
         }

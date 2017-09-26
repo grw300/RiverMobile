@@ -53,5 +53,11 @@ namespace RiverMobile.Helpers
             get => AppSettings.GetValueOrDefault(nameof(UserName), string.Empty);
             set => AppSettings.AddOrUpdateValue(nameof(UserName), value);
         }
+
+        public static string UserJson
+        {
+            get => AppSettings.GetValueOrDefault(nameof(UserJson), string.Empty);
+            set => AppSettings.AddOrUpdateValue(nameof(UserJson), value);
+        }
     }
 }
