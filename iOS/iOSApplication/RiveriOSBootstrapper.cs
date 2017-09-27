@@ -24,6 +24,8 @@ namespace RiverMobile.iOS
         {
             base.ConfigureApplication(container);
 
+            Console.WriteLine("We're in iOS ConfigureApplication");
+
             using (var lifeTimeScope = container.BeginLifetimeScope())
             {
                 var messageService = container.Resolve<IMessageService>();
