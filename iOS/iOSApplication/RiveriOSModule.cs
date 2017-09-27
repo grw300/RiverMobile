@@ -11,6 +11,10 @@ namespace RiverMobile.iOS
             builder.RegisterType<BeaconService>()
                    .As<IBeaconService>()
                    .SingleInstance();
+
+            builder.RegisterType<StampUploadService>()
+                   .As<IStampUploadService>()
+                   .SingleInstance();
         }
     }
 }

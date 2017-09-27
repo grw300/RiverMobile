@@ -24,9 +24,13 @@ namespace RiverMobile.iOS
         {
             base.ConfigureApplication(container);
 
-            var messageService = container.Resolve<IMessageService>();
+            using (var lifeTimeScope = container.BeginLifetimeScope())
+            {
+                var messageService = container.Resolve<IMessageService>();
+                var beaconService = container.Resolve<IBeaconService>();
 
-            WireMessages(messageService);
+                WireMessages(messageService);
+            }
         }
 
         void WireMessages(IMessageService messageService)

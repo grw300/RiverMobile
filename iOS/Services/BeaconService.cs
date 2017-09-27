@@ -17,11 +17,9 @@ namespace RiverMobile.iOS.Services
     {
         readonly IMessageService messageService;
 
-        readonly static CLLocationManager locationManager = new CLLocationManager();
+        protected readonly CLLocationManager locationManager = new CLLocationManager();
         HashSet<BeaconRegion> monitoredBeaconRegions = new HashSet<BeaconRegion>();
         HashSet<BeaconRegion> rangedBeaconRegions = new HashSet<BeaconRegion>();
-
-        public event EventHandler StampRecorded;
 
         public BeaconService(
             IMessageService messageService)

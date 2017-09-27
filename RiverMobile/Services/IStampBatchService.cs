@@ -6,6 +6,6 @@ namespace RiverMobile.Services
 {
     public interface IStampBatchService
     {
-        Task BatchStampsAsync(Stamp stamp);
+        void BatchStamps(Stamp stamp);
     }
 }

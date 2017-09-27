@@ -12,7 +12,7 @@ namespace RiverMobile
 {
     public class RiverAppBootstrapper : AutofacBootstrapper
     {
-        readonly Application application;
+        protected readonly Application application;
 
         public RiverAppBootstrapper(Application application)
         {

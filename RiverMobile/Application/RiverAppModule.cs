@@ -24,6 +24,9 @@ namespace RiverMobile
             builder.RegisterType<MessageService>()
                    .As<IMessageService>()
                    .SingleInstance();
+            builder.RegisterType<StampBatchService>()
+                   .As<IStampBatchService>()
+                   .SingleInstance();
 
             builder.RegisterType<ChatViewModel>()
                    .SingleInstance();

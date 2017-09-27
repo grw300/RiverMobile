@@ -17,7 +17,7 @@ namespace RiverMobile.Helpers
 
         public static string RiverApiBaseAddress
         {
-            get => AppSettings.GetValueOrDefault(nameof(RiverApiBaseAddress), "http://river-api.azurewebsites.net/api/v1/");
+            get => AppSettings.GetValueOrDefault(nameof(RiverApiBaseAddress), "https://river-api.azurewebsites.net/api/v1/");
             set => AppSettings.AddOrUpdateValue(nameof(RiverApiBaseAddress), value);
         }
 

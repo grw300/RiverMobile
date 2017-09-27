@@ -18,20 +18,13 @@ namespace RiverMobile.iOS.Services
         const string BackgroundSessionId = "com.River.BackgroundSession";
         readonly NSUrl StampsUrl = new Uri(new Uri(Settings.RiverApiBaseAddress), "stamps");
 
-        Lazy<NSUrlSession> urlSession = new Lazy<NSUrlSession>(() => InitSyncSession());
+        NSUrlSession urlSession = InitSyncSession();
         IMessageService messageService;
 
         public StampUploadService(
-                IMessageService messageService,
-                IRiverApiUploadDelegate riverApiUploadDelegate
-            )
+                IMessageService messageService)
         {
             this.messageService = messageService;
-
-            var configuration = NSUrlSessionConfiguration
-                .CreateBackgroundSessionConfiguration("com.River.BackgroundSession");
-
-            var session = NSUrlSession.FromConfiguration(configuration, riverApiUploadDelegate, NSOperationQueue.MainQueue);
         }
 
         public void UploadStamp(string stampFile)
@@ -45,7 +38,11 @@ namespace RiverMobile.iOS.Services
                 ["FileName"] = Path.GetFileName(stampFile)
             };
 
-            var uploadTask = urlSession.Value.CreateUploadTask(request, NSUrl.FromFilename(stampFile));
+            request.HttpMethod = "POST";
+            request["Content-Type"] = "application/vnd.api+json";
+            request["FileName"] = Path.GetFileName(stampFile);
+
+            var uploadTask = urlSession.CreateUploadTask(request, NSUrl.FromFilename(stampFile));
 
             uploadTask.Resume();
         }

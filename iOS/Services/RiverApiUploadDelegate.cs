@@ -11,8 +11,9 @@ namespace RiverMobile.iOS.Services
         {
             if (error != null)
             {
-                Console.WriteLine("shit went pear");
-                Console.WriteLine(task.TaskIdentifier);
+                Console.WriteLine($"shit went pear: {error.DebugDescription}");
+                Console.WriteLine($"Id: {task.TaskIdentifier}");
+                Console.WriteLine($"Error: {error.Description}");
             }
         }
 
