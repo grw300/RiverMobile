@@ -3,6 +3,7 @@ using Foundation;
 using JsonApiSerializer.JsonApi;
 using Newtonsoft.Json;
 using RiverMobile.Helpers;
+using RiverMobile.iOS.Delegates;
 using RiverMobile.Messages;
 using RiverMobile.Models;
 using RiverMobile.Services;
@@ -109,27 +110,85 @@ namespace RiverMobile.iOS.Services
 
         void WireLocationManager()
         {
+            locationManager.AuthorizationChanged += (sender, e) =>
+            {
+                Console.WriteLine($"The auth changed: {e.Status}");
+            };
+
+            locationManager.DeferredUpdatesFinished += (sender, e) =>
+            {
+                Console.WriteLine($"DeferredUpdatedFinished: {e.Error.Description}");
+            };
+
             locationManager.DidStartMonitoringForRegion += (sender, e) =>
             {
                 locationManager.RequestState(e.Region);
+                Console.WriteLine($"DidStartMonitoringForRegion: {e.Region.Description}");
             };
 
             locationManager.DidDetermineState += (sender, e) =>
             {
-                if (e.State == CLRegionState.Inside)
-                {
-                    messageService.Subscribe(this, (object messenger, RecordStampMessage message) =>
-                    {
-                        PrintBeaconLocation(message.Stamp.Location);
-                    });
+                Console.WriteLine($"DidDetermineState: {e.State}");
+            };
 
-                    locationManager.DidRangeBeacons += OnDidRangeBeacons;
-                }
-                else
-                {
-                    messageService.Unsubscribe<RecordStampMessage>(this);
-                    //locationManager.DidRangeBeacons -= OnDidRangeBeacons;
-                }
+            locationManager.DidRangeBeacons += (sender, e) =>
+            {
+                Console.WriteLine($"DidRangeBeacons: {e.Beacons.FirstOrDefault()?.Minor}");
+            };
+
+
+
+            //locationManager.DidDetermineState += (sender, e) =>
+            //{
+            //    if (e.State == CLRegionState.Inside)
+            //    {
+            //        messageService.Subscribe(this, (object messenger, RecordStampMessage message) =>
+            //        {
+            //            PrintBeaconLocation(message.Stamp.Location);
+            //        });
+
+            //        locationManager.DidRangeBeacons += OnDidRangeBeacons;
+            //    }
+            //    else
+            //    {
+            //        messageService.Unsubscribe<RecordStampMessage>(this);
+            //        //locationManager.DidRangeBeacons -= OnDidRangeBeacons;
+            //    }
+            //};
+
+            locationManager.DidVisit += (sender, e) =>
+            {
+                Console.WriteLine($"DidVisit: {e.Visit.Description}");
+            };
+
+            locationManager.Failed += (sender, e) =>
+            {
+                Console.WriteLine($"Failed: {e.Error.Description}");
+            };
+
+            locationManager.LocationsUpdated += (sender, e) =>
+            {
+                Console.WriteLine($"LocationsUpdated: {e.Locations[e.Locations.Length-1]}");
+            };
+
+            locationManager.LocationUpdatesPaused += (sender, e) =>
+            {
+                Console.WriteLine($"LocationUpdatesPaused: {e.ToString()}");
+            };
+
+            locationManager.LocationUpdatesResumed += (sender, e) =>
+            {
+                Console.WriteLine($"LocationUpdatesResumed: {e.ToString()}");
+            };
+
+            locationManager.MonitoringFailed += (sender, e) =>
+            {
+                Console.WriteLine($"LocationUpdatesResumed: {e.Error.Description}");
+            };
+            
+            locationManager.RangingBeaconsDidFailForRegion += (sender, e) =>
+            {
+                Console.WriteLine($"RangingBeaconsDidFailForRegion: {e.Error.Description}");
             };
 
             locationManager.RegionEntered += (sender, e) =>
@@ -140,6 +199,16 @@ namespace RiverMobile.iOS.Services
             locationManager.RegionLeft += (sender, e) =>
             {
                 Console.WriteLine($"Exited Region: {e.Region.Description}");
+            };
+
+            locationManager.UpdatedHeading += (sender, e) =>
+            {
+                Console.WriteLine($"Exited Region: {e.NewHeading.DebugDescription}");
+            };
+
+            locationManager.UpdatedLocation += (sender, e) =>
+            {
+                Console.WriteLine($"Exited Region: {e.NewLocation.DebugDescription}");
             };
         }
 

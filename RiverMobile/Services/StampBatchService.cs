@@ -71,7 +71,7 @@ namespace RiverMobile.Services
             var id = Guid.NewGuid();
             var stampFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), id.ToString());
             File.WriteAllText(stampFilePath, jsonContent);
-
+            Console.WriteLine("You're writing a stamp");
             return new StampFile()
             {
                 Id = id,
