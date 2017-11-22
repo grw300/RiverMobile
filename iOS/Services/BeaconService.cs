@@ -3,7 +3,6 @@ using Foundation;
 using JsonApiSerializer.JsonApi;
 using Newtonsoft.Json;
 using RiverMobile.Helpers;
-using RiverMobile.iOS.Delegates;
 using RiverMobile.Messages;
 using RiverMobile.Models;
 using RiverMobile.Services;
@@ -18,13 +17,16 @@ namespace RiverMobile.iOS.Services
     {
         readonly IMessageService messageService;
 
-        protected readonly CLLocationManager locationManager = new CLLocationManager();
+        protected readonly CLLocationManager locationManager;
         HashSet<BeaconRegion> monitoredBeaconRegions = new HashSet<BeaconRegion>();
         HashSet<BeaconRegion> rangedBeaconRegions = new HashSet<BeaconRegion>();
 
         public BeaconService(
-            IMessageService messageService)
+            CLLocationManager locationManager,
+            IMessageService messageService,
+            ICLLocationManagerDelegate strategy)
         {
+            this.locationManager = locationManager;
             this.messageService = messageService;
 
             locationManager.PausesLocationUpdatesAutomatically = false;
@@ -43,7 +45,9 @@ namespace RiverMobile.iOS.Services
                 locationManager.AllowsBackgroundLocationUpdates = true;
             }
 
-            WireLocationManager();
+            locationManager.Delegate = strategy;
+
+            //WireLocationManager();
             WireMessages();
         }
 
@@ -108,116 +112,12 @@ namespace RiverMobile.iOS.Services
             }
         }
 
-        void WireLocationManager()
-        {
-            locationManager.AuthorizationChanged += (sender, e) =>
-            {
-                Console.WriteLine($"The auth changed: {e.Status}");
-            };
-
-            locationManager.DeferredUpdatesFinished += (sender, e) =>
-            {
-                Console.WriteLine($"DeferredUpdatedFinished: {e.Error.Description}");
-            };
-
-            locationManager.DidStartMonitoringForRegion += (sender, e) =>
-            {
-                locationManager.RequestState(e.Region);
-                Console.WriteLine($"DidStartMonitoringForRegion: {e.Region.Description}");
-            };
-
-            locationManager.DidDetermineState += (sender, e) =>
-            {
-                Console.WriteLine($"DidDetermineState: {e.State}");
-            };
-
-            locationManager.DidRangeBeacons += (sender, e) =>
-            {
-                Console.WriteLine($"DidRangeBeacons: {e.Beacons.FirstOrDefault()?.Minor}");
-            };
-
-
-
-            //locationManager.DidDetermineState += (sender, e) =>
-            //{
-            //    if (e.State == CLRegionState.Inside)
-            //    {
-            //        messageService.Subscribe(this, (object messenger, RecordStampMessage message) =>
-            //        {
-            //            PrintBeaconLocation(message.Stamp.Location);
-            //        });
-
-            //        locationManager.DidRangeBeacons += OnDidRangeBeacons;
-            //    }
-            //    else
-            //    {
-            //        messageService.Unsubscribe<RecordStampMessage>(this);
-            //        //locationManager.DidRangeBeacons -= OnDidRangeBeacons;
-            //    }
-            //};
-
-            locationManager.DidVisit += (sender, e) =>
-            {
-                Console.WriteLine($"DidVisit: {e.Visit.Description}");
-            };
-
-            locationManager.Failed += (sender, e) =>
-            {
-                Console.WriteLine($"Failed: {e.Error.Description}");
-            };
-
-            locationManager.LocationsUpdated += (sender, e) =>
-            {
-                Console.WriteLine($"LocationsUpdated: {e.Locations[e.Locations.Length-1]}");
-            };
-
-            locationManager.LocationUpdatesPaused += (sender, e) =>
-            {
-                Console.WriteLine($"LocationUpdatesPaused: {e.ToString()}");
-            };
-
-            locationManager.LocationUpdatesResumed += (sender, e) =>
-            {
-                Console.WriteLine($"LocationUpdatesResumed: {e.ToString()}");
-            };
-
-            locationManager.MonitoringFailed += (sender, e) =>
-            {
-                Console.WriteLine($"LocationUpdatesResumed: {e.Error.Description}");
-            };
-            
-            locationManager.RangingBeaconsDidFailForRegion += (sender, e) =>
-            {
-                Console.WriteLine($"RangingBeaconsDidFailForRegion: {e.Error.Description}");
-            };
-
-            locationManager.RegionEntered += (sender, e) =>
-            {
-                Console.WriteLine($"Entered Region: {e.Region.Description}");
-            };
-
-            locationManager.RegionLeft += (sender, e) =>
-            {
-                Console.WriteLine($"Exited Region: {e.Region.Description}");
-            };
-
-            locationManager.UpdatedHeading += (sender, e) =>
-            {
-                Console.WriteLine($"Exited Region: {e.NewHeading.DebugDescription}");
-            };
-
-            locationManager.UpdatedLocation += (sender, e) =>
-            {
-                Console.WriteLine($"Exited Region: {e.NewLocation.DebugDescription}");
-            };
-        }
-
         void WireMessages()
         {
             messageService.Subscribe(this, (object messenger, DidEnterBackground message) =>
             {
                 //TODO: this is a hack to get around backgrounding limitations on iOS
-                //You need to define a 5-color-mapping scheme to get around this
+                //You need to define a nearest neighbors scheme and attach a new delegate
                 locationManager.StartUpdatingLocation();
             });
 
@@ -225,29 +125,6 @@ namespace RiverMobile.iOS.Services
             {
                 locationManager.StopUpdatingLocation();
             });
-        }
-
-        void OnDidRangeBeacons(object sender, CLRegionBeaconsRangedEventArgs e)
-        {
-            var firstBeacon = e.Beacons.FirstOrDefault();
-            var location = firstBeacon?.Minor.Int32Value ?? -1;
-
-            if (location == Settings.CurrentLocation)
-                return;
-
-            Settings.CurrentLocation = location;
-
-            var stamp = new Stamp
-            {
-                Time = DateTime.UtcNow,
-                Location = location,
-                Personal = new Relationship<Personal>
-                {
-                    Data = JsonConvert.DeserializeObject<Personal>(Settings.UserJson, new JsonSerializerSettings())
-                }
-            };
-
-            messageService.Send(new RecordStampMessage(stamp));
         }
 
         protected void PrintBeaconLocation(int beaconLocation)

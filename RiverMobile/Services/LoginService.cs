@@ -18,33 +18,25 @@ namespace RiverMobile.Services
         readonly IBeaconService beaconService;
         readonly IMessageService messageService;
         readonly INavigator navigator;
+        readonly INearestNeighbors nearestNeighbors;
         readonly IRiverApiService riverApiService;
         readonly IViewFactory viewFactory;
 
-        readonly HashSet<BeaconRegion> beaconRegions = new HashSet<BeaconRegion>();
 
         public LoginService(
             IBeaconService beaconService,
             IMessageService messageService,
             INavigator navigator,
+            INearestNeighbors nearestNeighbors,
             IRiverApiService riverApiService,
             IViewFactory viewFactory)
         {
             this.beaconService = beaconService;
             this.messageService = messageService;
             this.navigator = navigator;
+            this.nearestNeighbors = nearestNeighbors;
             this.riverApiService = riverApiService;
             this.viewFactory = viewFactory;
-
-            //TODO: fix this hack - you should be gettings these values from the API.
-            //TODO: You need to centralize these GUIDs - there will be more than one.
-            beaconRegions.Add(
-                new BeaconRegion("B9407F30-F5F8-466E-AFF9-25556B57FE6D",
-                                 "com.GregWill.RiverB9407F"));
-
-            //beaconRegions.Add(
-            //new BeaconRegion("CBE70FB5-6155-4D2D-BC3C-E9F4C2CB18E6",
-            //"com.GregWill.RiverCBE70F"));
         }
 
         public async Task LoginAsync(string UserName)
@@ -66,7 +58,7 @@ namespace RiverMobile.Services
         {
             Settings.IsLoggedIn = false;
 
-            beaconService.StopRanging(beaconRegions);
+            beaconService.StopRanging(nearestNeighbors.BeaconRegions);
 
             Application.Current.MainPage = viewFactory.Resolve<LoginViewModel>();
         }
