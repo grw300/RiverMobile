@@ -16,18 +16,19 @@ namespace RiverMobile.iOS.Services
     public class BeaconService : IBeaconService
     {
         readonly IMessageService messageService;
+        readonly INearestNeighbors strategy;
 
-        protected readonly CLLocationManager locationManager;
+        protected readonly CLLocationManager locationManager = new CLLocationManager();
         HashSet<BeaconRegion> monitoredBeaconRegions = new HashSet<BeaconRegion>();
         HashSet<BeaconRegion> rangedBeaconRegions = new HashSet<BeaconRegion>();
 
+
         public BeaconService(
-            CLLocationManager locationManager,
             IMessageService messageService,
-            ICLLocationManagerDelegate strategy)
+            INearestNeighbors strategy)
         {
-            this.locationManager = locationManager;
             this.messageService = messageService;
+            this.strategy = strategy;
 
             locationManager.PausesLocationUpdatesAutomatically = false;
 
@@ -45,18 +46,18 @@ namespace RiverMobile.iOS.Services
                 locationManager.AllowsBackgroundLocationUpdates = true;
             }
 
-            locationManager.Delegate = strategy;
-
-            //WireLocationManager();
+            WireLocation();
             WireMessages();
         }
+
+
 
         public void StartMonitoring(HashSet<BeaconRegion> beaconRegions)
         {
             //TODO: figure out if this is really nessessary
             // i.e. what happens if you add a region that already exists?
             // this needs to be answered for all of these methods
-            var newBeaconRegions = beaconRegions.Except(monitoredBeaconRegions);
+            var newBeaconRegions = beaconRegions.Except(monitoredBeaconRegions).ToList();
 
             foreach (var beaconRegion in newBeaconRegions)
             {
@@ -70,7 +71,7 @@ namespace RiverMobile.iOS.Services
 
         public void StopMonitoring(HashSet<BeaconRegion> beaconRegions)
         {
-            var newBeaconRegions = beaconRegions.Intersect(monitoredBeaconRegions);
+            var newBeaconRegions = beaconRegions.Intersect(monitoredBeaconRegions).ToList();
 
             foreach (var beaconRegion in newBeaconRegions)
             {
@@ -84,7 +85,7 @@ namespace RiverMobile.iOS.Services
 
         public void StartRanging(HashSet<BeaconRegion> beaconRegions)
         {
-            var newBeaconRegions = beaconRegions.Except(rangedBeaconRegions);
+            var newBeaconRegions = beaconRegions.Except(rangedBeaconRegions).ToList();
 
             foreach (var beaconRegion in newBeaconRegions)
             {
@@ -99,7 +100,7 @@ namespace RiverMobile.iOS.Services
 
         public void StopRanging(HashSet<BeaconRegion> beaconRegions)
         {
-            var removeBeaconRegions = beaconRegions.Intersect(rangedBeaconRegions);
+            var removeBeaconRegions = beaconRegions.Intersect(rangedBeaconRegions).ToList();
 
             foreach (var beaconRegion in removeBeaconRegions)
             {
@@ -110,6 +111,37 @@ namespace RiverMobile.iOS.Services
 
                 rangedBeaconRegions.Remove(beaconRegion);
             }
+        }
+
+        void WireLocation()
+        {
+            locationManager.DidDetermineState += (sender, e) =>
+            {
+                Console.Write($"Hello: {e.Region.Description}");
+                if (e.State == CLRegionState.Inside)
+                {
+                    Console.WriteLine("You're inside!");
+                    var beaconRegion = BeaconRegionFactory(e.Region as CLBeaconRegion);
+                    if (Settings.CurrentLocation == beaconRegion.Major)
+                        return;
+                    //strategy.RecordStamp((int)beaconRegion.Major);
+                    StopMonitoring(monitoredBeaconRegions);
+                    var key = strategy.Neighbors.Keys.FirstOrDefault(k => k.Uuid == beaconRegion.Uuid);
+                    StartMonitoring(strategy.Neighbors[key]);
+                }
+            };
+
+            locationManager.RegionEntered += (sender, e) =>
+            {
+                Console.WriteLine($"{e.Region.Description}");
+                var beaconRegion = BeaconRegionFactory(e.Region as CLBeaconRegion);
+                if (Settings.CurrentLocation == beaconRegion.Major)
+                    return;
+                strategy.RecordStamp((int)beaconRegion.Major);
+                StopMonitoring(monitoredBeaconRegions);
+                var key = strategy.Neighbors.Keys.FirstOrDefault(k => k.Uuid == beaconRegion.Uuid);
+                StartMonitoring(strategy.Neighbors[key]);
+            };
         }
 
         void WireMessages()
@@ -130,6 +162,14 @@ namespace RiverMobile.iOS.Services
         protected void PrintBeaconLocation(int beaconLocation)
         {
             Console.WriteLine($"First Beacon: {beaconLocation}");
+        }
+
+        BeaconRegion BeaconRegionFactory(CLBeaconRegion clBeaconRegion)
+        {
+            var beaconRegion = new BeaconRegion(clBeaconRegion.ProximityUuid.ToString(),
+                                                clBeaconRegion.Identifier,
+                                                (ushort?)clBeaconRegion.Major?.Int16Value);
+            return beaconRegion;
         }
 
         CLBeaconRegion CLBeaconRegionFactory(BeaconRegion beaconRegion)

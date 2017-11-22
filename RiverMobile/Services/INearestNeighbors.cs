@@ -7,6 +7,8 @@ namespace RiverMobile.Services
 {
     public interface INearestNeighbors
     {
+        Dictionary<BeaconRegion, HashSet<BeaconRegion>> Neighbors { get; }
         HashSet<BeaconRegion> BeaconRegions { get; }
+        void RecordStamp(int location);
     }
 }

@@ -50,7 +50,7 @@ namespace RiverMobile.Services
 
             stampFiles.Add(WriteStamp(newStamp));
 
-            if (stampFiles.Count >= 3)
+            if (stampFiles.Count >= 1)
             {
                 foreach (var stampFile in stampFiles)
                 {

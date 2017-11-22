@@ -58,5 +58,7 @@
 	<string>This won&apos;t provide others with your location unless uyou open the app.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>We need to know which room you are in.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We need to know which room you are in.</string>
 </dict>
 </plist>
